@@ -4,11 +4,6 @@ const Book = require("../models/book.model");
 exports.add = async (request, response) => {
   const title = request.body.title.toUpperCase();
   try {
-    if (!(title.trim() || request.body.author.trim() || request.body.genre.trim() || request.body.year.trim() || request.body.description.trim())) {
-      response.status(400).send({ message: "Content cannot be empty" });
-      return;
-    }
-
     const isDuplicateTitle = await checkDuplicateName(title);
     if (!isDuplicateTitle.length) {
       const book = new Book({
@@ -16,6 +11,7 @@ exports.add = async (request, response) => {
         author: request.body.author,
         genre: request.body.genre,
         year: request.body.year,
+        published: request.body.published,
         description: request.body.description
       });
       const data = await book.save(book);
@@ -46,15 +42,9 @@ exports.findAll = async (request,response) => {
 
 exports.update = async (request, response) => {
   const { id } = request.params;
-  const { title, author, genre, year, description } = request.body;
+  const { title, author, genre, year, description, published } = request.body;
 
   try {
-    if (!id || !(title || author || genre || year || description)) {
-      return response.status(400).send({ 
-        message: "Content cannot be empty and an ID must be provided"
-      });
-    }
-
     let newTitle = title ? title.toUpperCase() : undefined;
     if (newTitle) {
       const isDuplicateTitle = await checkDuplicateName(newTitle);
@@ -68,6 +58,7 @@ exports.update = async (request, response) => {
     newBook.author = author;
     newBook.genre = genre;
     newBook.year = year;
+    newBook.published = published;
     newBook.description = description;
 
     // Find the book by ID
