@@ -13,3 +13,5 @@ exports.year = body('year').notEmpty().withMessage('Year is required').isLength(
 exports.published =  body('published').isDate().withMessage('Date cannot be in the future.');
 
 exports.description = body('description').notEmpty().withMessage('Description is required').isLength({ max: 50 }).withMessage('Description cannot exceed 50 characters');
+
+exports.rating = body('rating').notEmpty().withMessage('Rating is required').isFloat({ lt: 5 }).withMessage('Rating cannot be more than 5');

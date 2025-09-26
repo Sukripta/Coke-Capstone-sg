@@ -1,5 +1,6 @@
 const { checkDuplicateName } = require("../utils/duplicateVal");
 const Book = require("../models/book.model");
+const Review = require("../models/review.model");
 
 exports.add = async (request, response) => {
   const title = request.body.title.toUpperCase();
@@ -28,7 +29,7 @@ exports.add = async (request, response) => {
 
 };
 
-exports.findAll = async (request,response) => {
+exports.findAll = async (request, response) => {
   try {
     const data = await Book.find({});
     response.status(200).send(data);
@@ -74,3 +75,45 @@ exports.update = async (request, response) => {
   }
 };
 
+exports.delete = async (request, response) => {
+  try {
+    const id = request.params.id;
+    const data = await Book.findByIdAndDelete(id);
+
+    if (!data) {
+      return response.status(404).send({
+        message: `Cannot delete Book with id=${id}`,
+      });
+    }
+
+    response.status(200).send({
+      message: "Book was deleted successfully!",
+    });
+
+  } catch (err) {
+    response.status(500).send({
+      message: "Could not delete Book with id=" + request.params.id,
+    });
+  }
+};
+
+exports.addReview = async (request, response) => {
+  try {
+    const bookId = request.params.id;
+    const { rating, comment } = request.body;
+    const book = await Book.findById(bookId);
+
+    const bookReview = new Review({
+      title: book.title,
+      bookid: bookId,
+      rating: rating,
+      comment: comment
+    });
+    const data = await bookReview.save(bookReview);
+    response.status(201).send(data);
+  } catch (err) {
+    response.status(500).send({
+      message: err.message || "Something went wrong"
+    });
+  }
+};
