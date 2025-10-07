@@ -117,3 +117,43 @@ exports.addReview = async (request, response) => {
     });
   }
 };
+
+exports.listReview = async (request, response) => {
+  try {
+    const bookId = request.params.id;
+    const reviews = await Review.find({ bookid: bookId });
+    if (reviews.length === 0) {
+      response.status(400).send({
+        message: `Cannot find reviews for book id: ${request.params.id}`
+      });
+    }
+    response.status(201).send(reviews);
+  } catch (err) {
+    response.status(500).send({
+      message: err.message || `Something went wrong`
+    });
+  }
+};
+
+exports.deleteReview = async (request, response) => {
+  try {
+    const id = request.params.id;
+    const data = await Review.findByIdAndDelete(id);
+
+    if (!data) {
+      return response.status(404).send({
+        message: `Cannot delete Book with id=${id}`,
+      });
+    }
+
+    response.status(200).send({
+      message: "Review was deleted successfully!",
+    });
+
+  } catch (err) {
+    console.error("Error:  ", err);
+    response.status(500).send({
+      message: "Could not delete Review with id=" + request.params.id,
+    });
+  }
+};
